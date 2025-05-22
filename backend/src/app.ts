@@ -33,10 +33,11 @@ export class App {
     this.app.use(errorHandler);
   }
 
-  public start(): void {
-    this.app.listen(config.port, () => {
-      console.log(`✅ Server running on http://localhost:${config.port}`);
+  public start(port: number): void {
+    this.app.listen(port, () => {
+      console.log(`✅ Server running on http://localhost:${port}`);
       console.log(`📝 Environment: ${config.env}`);
     });
   }
+  
 }

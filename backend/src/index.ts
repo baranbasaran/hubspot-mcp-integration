@@ -8,7 +8,9 @@ async function bootstrap() {
   
   try {
     const server = new App();
-    server.start();
+    const port = Number(process.env.PORT) || 3000;
+
+    server.start(port);
     
     // Graceful shutdown
     const shutdown = async () => {
