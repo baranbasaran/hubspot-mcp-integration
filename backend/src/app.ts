@@ -4,7 +4,7 @@ import cors from 'cors';
 import { config } from './config/config';
 import { errorHandler } from './middleware/errorHandler';
 import contactRoute from './routes/contactRoute';
-
+import mcpRoute from './routes/mcpRoute';
 export class App {
   public app: Application;
 
@@ -25,6 +25,7 @@ export class App {
       res.json({ status: 'healthy' });
     });
     this.app.use('/contacts', contactRoute);
+    this.app.use('/mcp', mcpRoute);
   }
 
   private setupErrorHandling(): void {

@@ -12,7 +12,6 @@ export const createBatchContacts = async (req: Request, res: Response): Promise<
   try {
     const { contacts } = req.body;
 
-    // Validate input
     if (!Array.isArray(contacts) || contacts.length === 0) {
       res.status(400).json(ApiResponse.error('Invalid input: contacts must be a non-empty array.'));
       return;
