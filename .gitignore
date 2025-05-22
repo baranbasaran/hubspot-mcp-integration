@@ -1,0 +1,16 @@
+# Root .gitignore
+node_modules/
+.DS_Store
+.env
+*.log
+dist/
+coverage/
+
+# Frontend
+frontend/build/
+frontend/.next/
+frontend/node_modules/
+
+# Backend
+backend/dist/
+backend/node_modules/
