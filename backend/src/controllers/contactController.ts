@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { batchCreateContacts } from '../services/contactService'; // Assuming you have a service layer for business logic
-import { ContactInput } from '../types/contactTypes'; // Adjust the import based on your project structure
+import { batchCreateContacts, searchContactById, deleteContactById, listPaginatedContacts } from '../services/contactService'; 
+import { ContactInput } from '../types/contactTypes';
 import { ApiResponse } from '../utils/ApiResponse';
+
 
 /**
  * Controller to handle batch contact creation
@@ -43,3 +44,82 @@ export const createBatchContacts = async (req: Request, res: Response): Promise<
     res.status(500).json(ApiResponse.error('An error occurred while creating batch contacts.', error.message));
   }
 };
+
+
+/**
+ * Controller to handle contact search
+ * @param req - Express Request object
+ * @param res - Express Response object
+ */
+
+export const searchContact = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(400).json(ApiResponse.error("Invalid input: ID is required."));
+      return;
+    }
+    
+    const contact = await searchContactById(id);
+    res.status(200).json(ApiResponse.success("Contact found successfully", contact));
+
+  } catch (error: any) {
+    console.error("Error searching contact:", error.message);
+    res.status(500).json(ApiResponse.error("An error occurred while searching for contact.", error.message));
+  }
+}
+
+/**
+ * Controller to handle contact deletion
+ * @param req - Express Request object
+ * @param res - Express Response object
+ */
+export const deleteContact = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(400).json(ApiResponse.error("Invalid input: ID is required."));
+      return;
+    }
+
+    const contact = await searchContactById(id);
+    if (!contact) {
+      res.status(404).json(ApiResponse.error("Contact not found."));
+      return;
+    }
+
+    await deleteContactById(id);
+    res.status(200).json(ApiResponse.success("Contact deleted successfully."));
+
+  } catch (error: any) {
+    console.error("Error deleting contact:", error.message);
+    res.status(500).json(ApiResponse.error("An error occurred while deleting contact.", error.message));
+  }
+}
+
+/**
+ * Controller to handle fetching all contacts
+ * @param req - Express Request object
+ * @param res - Express Response object
+ */
+export const listContacts = async (req: Request, res: Response): Promise<void> => {
+    try {
+      console.log("Listing contacts with limit:");
+
+        const limit = Number(req.query.limit) || 100;
+        const after = req.query.after as string;
+        const contacts = await listPaginatedContacts({ limit, after });
+        res.status(200).json(ApiResponse.success("Contacts retrieved successfully", {
+            contacts: contacts.results,
+            pagination: {
+                next: contacts.paging?.next?.after,
+                hasMore: Boolean(contacts.paging?.next)
+            }
+        }));
+    } catch (error: any) {
+        console.error("Error listing contacts:", error.message);
+        res.status(500).json(ApiResponse.error("An error occurred while fetching contacts list", error.message));
+    }
+}

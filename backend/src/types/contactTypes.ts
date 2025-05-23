@@ -7,3 +7,9 @@ export interface ContactInput {
   phone?: string;
   [key: string]: any;
 }
+
+export interface ListContactsOptions {
+  limit?: number;
+  after?: string;
+  properties?: string[];
+}

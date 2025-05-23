@@ -17,6 +17,7 @@ class HubSpotClientWrapper{
                 accessToken: process.env.HUBSPOT_API_KEY
             });
         }
+
         return this.instance;
     }
 }
