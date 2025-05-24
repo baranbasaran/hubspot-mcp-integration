@@ -1,12 +1,11 @@
 // src/routes/contactRoute.ts
 import { Router } from 'express';
-import { createBatchContacts, deleteContact, searchContact,listContacts } from '../controllers/contactController';
+import { createBatchContacts, deleteContact, searchContact } from '../controllers/contactController';
 
 const router = Router();
 
-router.get('/', listContacts);
 router.post('/createBatch', createBatchContacts);
-router.get('/search/:id', searchContact);
+router.get('/search', searchContact);
 router.delete('/delete/:id', deleteContact);
 
 
