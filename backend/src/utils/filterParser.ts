@@ -1,4 +1,4 @@
-import { SearchFilter } from "../types/searchTypes";
+import { SearchFilters } from "../types/searchTypes";
 const allowedOperators = [
   "EQ",
   "NEQ",
@@ -9,8 +9,8 @@ const allowedOperators = [
   "CONTAINS_TOKEN",
 ] as const;
 
-export function parseFilterFromQuery(query: any): SearchFilter[] {
-  const filters: SearchFilter[] = [];
+export function parseFilterFromQuery(query: any): SearchFilters[] {
+  const filters: SearchFilters[] = [];
 
   if (
     query.property &&
@@ -19,7 +19,7 @@ export function parseFilterFromQuery(query: any): SearchFilter[] {
   ) {
     filters.push({
       propertyName: String(query.property),
-      operator: query.operator as SearchFilter["operator"],
+      operator: query.operator as SearchFilters["operator"],
       value: String(query.value),
     });
   }

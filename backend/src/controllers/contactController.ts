@@ -3,8 +3,8 @@ import {
   batchCreateContacts,
   searchContactById,
   deleteContactById,
-  listPaginatedContacts,
   searchContacts,
+  listContacts,
 } from "../services/contactService";
 import { ContactInput } from "../types/contactTypes";
 import { ApiResponse } from "../utils/ApiResponse";
@@ -89,7 +89,7 @@ export const searchContact = async (
   try {
     const filters = parseFilterFromQuery(req.query);
     if (!filters.length) {
-      const response = await listPaginatedContacts();
+      const response = await listContacts();
       res
         .status(200)
         .json(ApiResponse.success("Contacts retrieved successfully", response));

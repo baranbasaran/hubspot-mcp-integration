@@ -5,6 +5,7 @@ import { config } from './config/config';
 import { errorHandler } from './middleware/errorHandler';
 import contactRoute from './routes/contactRoute';
 import mcpRoute from './routes/mcpRoute';
+import companyRoute from './routes/companyRoute';
 export class App {
   public app: Application;
 
@@ -24,8 +25,9 @@ export class App {
     this.app.get('/health', (req, res) => {
       res.json({ status: 'healthy' });
     });
-    this.app.use('/contacts', contactRoute);
+    this.app.use('/contact', contactRoute);
     this.app.use('/mcp', mcpRoute);
+    this.app.use('/company', companyRoute);
   }
 
   private setupErrorHandling(): void {

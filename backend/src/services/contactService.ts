@@ -1,6 +1,6 @@
 import HubSpotClientWrapper from "../clients/hubspotClient";
-import { ContactInput, ListContactsOptions } from "../types/contactTypes";
-import { SearchFilter } from "../types/searchTypes";
+import { ContactInput } from "../types/contactTypes";
+import { SearchFilters } from "../types/searchTypes";
 import {
   Filter,
   FilterGroup,
@@ -44,7 +44,7 @@ export const deleteContactById = async (id: string) => {
   }
 };
 
-export const listPaginatedContacts = async () => {
+export const listContacts = async () => {
   const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.contacts.basicApi.getPage();
@@ -55,7 +55,7 @@ export const listPaginatedContacts = async () => {
   }
 };
 
-export const searchContacts = async (filters: SearchFilter[]) => {
+export const searchContacts = async (filters: SearchFilters[]) => {
   const hubSpotClient = HubSpotClientWrapper.getClient();
 
   const filterGroup: FilterGroup = {
