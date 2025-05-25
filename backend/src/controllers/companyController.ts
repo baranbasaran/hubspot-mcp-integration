@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse";
 import {
-  listCompanies,
-  searchCompanies,
   batchCreateCompanies,
-  createCompany,
-  deleteCompany,
 } from "../services/companyService";
 import { CompanyInput,CompanyFilters } from "../types/companyTypes";
 
