@@ -1,4 +1,3 @@
-// src/utils/ApiResponse.ts
 export class ApiResponse<T> {
     status: string;
     message: string;

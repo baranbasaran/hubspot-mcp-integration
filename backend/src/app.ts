@@ -5,6 +5,7 @@ import { config } from './config/config';
 import { errorHandler } from './middleware/errorHandler';
 import contactRoute from './routes/contactRoute';
 import companyRoute from './routes/companyRoute';
+import cardRoute from './routes/cardRoute';
 export class App {
   public app: Application;
 
@@ -26,6 +27,7 @@ export class App {
     });
     this.app.use('/contact', contactRoute);
     this.app.use('/company', companyRoute);
+    this.app.use('/card', cardRoute);
   }
 
   private setupErrorHandling(): void {

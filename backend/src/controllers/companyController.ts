@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import {
   batchCreateCompanies,
 } from "../services/companyService";
-import { CompanyInput,CompanyFilters } from "../types/companyTypes";
+import { CompanyInput } from "../types/companyTypes";
 
 /**
  * Controller to handle batch company creation

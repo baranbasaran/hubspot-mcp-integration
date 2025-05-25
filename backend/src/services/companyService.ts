@@ -6,9 +6,11 @@ import {
   FilterGroup,
   PublicObjectSearchRequest,
 } from "@hubspot/api-client/lib/codegen/crm/companies";
+import { HubSpotAuthType } from '../types/hubspotAuthTypes';
+
+const hubSpotClient = HubSpotClientWrapper.getClient(HubSpotAuthType.ACCESS_TOKEN);
 
 export const batchCreateCompanies = async (companies: CompanyInput[]) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   const formatted =   companies.map((c) => ({ properties: c }));
 
   try {
@@ -22,7 +24,6 @@ export const batchCreateCompanies = async (companies: CompanyInput[]) => {
   }
 };
 export const listCompanies = async () => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.companies.basicApi.getPage();
     return response;
@@ -33,7 +34,6 @@ export const listCompanies = async () => {
 };
 
 export const searchCompanies = async (filters: CompanyFilters[]) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
 
   const filterGroup: FilterGroup = {
     filters: filters.map((f) => ({
@@ -62,7 +62,6 @@ export const searchCompanies = async (filters: CompanyFilters[]) => {
 };
 
 export const createCompany = async (companyData: any) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.companies.basicApi.create({
       properties: companyData,
@@ -74,7 +73,6 @@ export const createCompany = async (companyData: any) => {
   }
 };
 export const deleteCompany = async (id: string) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.companies.basicApi.archive(id);
     return response;

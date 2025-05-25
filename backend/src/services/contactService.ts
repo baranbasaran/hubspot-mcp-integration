@@ -6,13 +6,14 @@ import {
   FilterGroup,
   PublicObjectSearchRequest,
 } from "@hubspot/api-client/lib/codegen/crm/contacts";
+import { HubSpotAuthType } from '../types/hubspotAuthTypes';
+const hubSpotClient = HubSpotClientWrapper.getClient(HubSpotAuthType.ACCESS_TOKEN);
 
 export const batchCreateContacts = async (contacts: ContactInput[]) => {
-  const hubStopClient = HubSpotClientWrapper.getClient();
   const formatted = contacts.map((c) => ({ properties: c }));
 
   try {
-    const response = await hubStopClient.crm.contacts.batchApi.create({
+    const response = await hubSpotClient.crm.contacts.batchApi.create({
       inputs: formatted,
     });
     return response.results;
@@ -23,7 +24,6 @@ export const batchCreateContacts = async (contacts: ContactInput[]) => {
 };
 
 export const searchContactById = async (id: string) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.contacts.basicApi.getById(id);
     return response;
@@ -34,7 +34,6 @@ export const searchContactById = async (id: string) => {
 };
 
 export const deleteContactById = async (id: string) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.contacts.basicApi.archive(id);
     return response;
@@ -45,7 +44,6 @@ export const deleteContactById = async (id: string) => {
 };
 
 export const listContacts = async () => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
   try {
     const response = await hubSpotClient.crm.contacts.basicApi.getPage();
     return response;
@@ -56,7 +54,6 @@ export const listContacts = async () => {
 };
 
 export const searchContacts = async (filters: SearchFilters[]) => {
-  const hubSpotClient = HubSpotClientWrapper.getClient();
 
   const filterGroup: FilterGroup = {
     filters: filters.map((f) => ({
