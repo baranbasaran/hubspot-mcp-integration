@@ -1,11 +1,12 @@
 // src/app.ts
-import express, { Application } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express'; // Import Request, Response, NextFunction
 import cors from 'cors';
 import { config } from './config/config';
 import { errorHandler } from './middleware/errorHandler';
 import contactRoute from './routes/contactRoute';
 import companyRoute from './routes/companyRoute';
-import cardRoute from './routes/cardRoute';
+import webhookRoute from './routes/webhookRoute';
+
 export class App {
   public app: Application;
 
@@ -18,20 +19,22 @@ export class App {
 
   private setupMiddleware(): void {
     this.app.use(cors(config.corsOptions));
-    this.app.use(express.json());
   }
 
   private setupRoutes(): void {
     this.app.get('/health', (req, res) => {
       res.json({ status: 'healthy' });
     });
+
+    this.app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRoute);
+
+    this.app.use(express.json()); // This will apply to routes defined after this line
+
     this.app.use('/contact', contactRoute);
     this.app.use('/company', companyRoute);
-    this.app.use('/card', cardRoute);
   }
 
   private setupErrorHandling(): void {
-    // Error handling middleware must be last
     this.app.use(errorHandler);
   }
 
@@ -41,5 +44,4 @@ export class App {
       console.log(`📝 Environment: ${config.env}`);
     });
   }
-  
 }

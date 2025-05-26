@@ -1,12 +1,16 @@
 
 import dotenv from 'dotenv';
 import { App } from './app';
+import { connectDB } from './database';
 
 dotenv.config();
 
 async function bootstrap() {
   
   try {
+    // Connect to MongoDB
+    await connectDB();
+    
     const server = new App();
     const port = Number(process.env.PORT) || 3000;
 
