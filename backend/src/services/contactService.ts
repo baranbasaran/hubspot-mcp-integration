@@ -1,3 +1,4 @@
+// backend/src/services/contactService.ts
 import HubSpotClientWrapper from "../clients/hubspotClient";
 import { ContactInput } from "../types/contactTypes";
 import { SearchFilters } from "../types/searchTypes";
@@ -7,6 +8,7 @@ import {
   PublicObjectSearchRequest,
 } from "@hubspot/api-client/lib/codegen/crm/contacts";
 import { HubSpotAuthType } from '../types/hubspotAuthTypes';
+import { saveContactToDb, updateContactInDb, deleteContactFromDb, findContactByHubspotId } from '../repositories/contactRepository'; // Import new repository functions
 const hubSpotClient = HubSpotClientWrapper.getClient(HubSpotAuthType.ACCESS_TOKEN);
 
 export const batchCreateContacts = async (contacts: ContactInput[]) => {
@@ -81,4 +83,31 @@ export const searchContacts = async (filters: SearchFilters[]) => {
     console.error("Error searching contacts:", error);
     throw error;
   }
+};
+
+// New functions to interact with local database via repository
+export const syncContactToLocalDb = async (hubspotContact: any) => {
+  // Map HubSpot contact properties to your local IContact interface
+  const mappedContact: ContactInput & { hubspotId: string } = {
+    hubspotId: hubspotContact.id,
+    firstname: hubspotContact.properties.firstname,
+    lastname: hubspotContact.properties.lastname,
+    email: hubspotContact.properties.email,
+    phone: hubspotContact.properties.phone,
+    jobtitle: hubspotContact.properties.jobtitle,
+    company: hubspotContact.properties.company, // Assuming 'company' property exists or will be handled
+  };
+  return saveContactToDb(mappedContact);
+};
+
+export const updateLocalContactProperty = async (hubspotId: string, propertyName: string, newValue: any) => {
+  return updateContactInDb(hubspotId, propertyName, newValue);
+};
+
+export const removeContactFromLocalDb = async (hubspotId: string) => {
+  return deleteContactFromDb(hubspotId);
+};
+
+export const getLocalContactByHubspotId = async (hubspotId: string) => {
+  return findContactByHubspotId(hubspotId);
 };

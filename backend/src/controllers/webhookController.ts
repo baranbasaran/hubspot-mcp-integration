@@ -2,17 +2,12 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from '../utils/ApiResponse';
 // Import your services that will handle the specific webhook events
-import { searchContactById } from '../services/contactService';
+import { searchContactById, syncContactToLocalDb, updateLocalContactProperty, removeContactFromLocalDb } from '../services/contactService'; // Import new service functions
 import { searchCompanies } from '../services/companyService'; // You might need more specific company update/create logic later
 import { verifyWebhookSignature } from '../utils/hubspotWebhookUtils'; // Import your utility to verify webhook signatures
-// You'll need to define how to verify the webhook signature.
-// For now, we'll add a placeholder function.
+
 // Replace with your actual client secret from HubSpot Private App (Auth tab)
-const HUBSPOT_CLIENT_SECRET = process.env.HUBSPOT_CLIENT_SECRET; // Make sure this is set in your .env
 const HUBSPOT_WEBHOOK_SECRET = process.env.HUBSPOT_WEBHOOK_SECRET; // If you set a webhook signing secret
-
-
-
 
 export const handleHubSpotWebhook = async (req: Request, res: Response) => {
   try {
@@ -34,18 +29,21 @@ export const handleHubSpotWebhook = async (req: Request, res: Response) => {
       return res.status(200).json(ApiResponse.success('No events to process.'));
     }
 
-    console.log('Received HubSpot webhook payload:', JSON.stringify(payload, null, 2));
-
+    // Convert raw body to string for signature verification if it's a Buffer
+    const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : JSON.stringify(req.body);
 
     // Verify the webhook signature using your utility function
-    if (!verifyWebhookSignature(signature, req.body, HUBSPOT_WEBHOOK_SECRET)) {
+    if (!verifyWebhookSignature(signature, rawBody, HUBSPOT_WEBHOOK_SECRET)) {
       console.warn('🚫 Webhook signature verification failed. Request denied.');
       return res.status(401).json(ApiResponse.error('Unauthorized: Invalid webhook signature.'));
     }
 
+    console.log('Received HubSpot webhook payload:', JSON.stringify(payload, null, 2));
+
+
     // Iterate through each event in the payload
     for (const event of payload) {
-      switch (event.changeSource) {
+      switch (event.objectType) { // Changed from changeSource to objectType as per typical HubSpot webhook structure
         case 'CONTACT':
           await handleContactWebhookEvent(event);
           break;
@@ -53,7 +51,7 @@ export const handleHubSpotWebhook = async (req: Request, res: Response) => {
           await handleCompanyWebhookEvent(event);
           break;
         default:
-          console.log(`Unhandled changeSource: ${event.changeSource} for event: ${event.objectId}`);
+          console.log(`Unhandled objectType: ${event.objectType} for event: ${event.objectId}`);
       }
     }
 
@@ -68,31 +66,41 @@ export const handleHubSpotWebhook = async (req: Request, res: Response) => {
   }
 };
 
-// --- Placeholder functions for specific event handling ---
+// --- Functions for specific event handling ---
 
 async function handleContactWebhookEvent(event: any) {
   console.log(`Processing CONTACT event: ${event.changeType} on ID ${event.objectId}`);
-  // You will implement the logic for Option 1 here
-  // For example:
-  switch (event.changeType) {
-    case 'CREATE':
-      console.log(`New Contact Created (ID: ${event.objectId}). Syncing to external DB.`);
-      // TODO: Call an external service to synchronize this contact to your database
-      // You might fetch more details using searchContactById(event.objectId) if needed
-      // const contactDetails = await searchContactById(event.objectId);
-      // await externalDbService.saveContact(contactDetails);
-      break;
-    case 'PROPERTY_CHANGE':
-      console.log(`Contact ${event.objectId} property '${event.propertyName}' changed from '${event.before}' to '${event.newValue}'.`);
-      // TODO: Update your external DB with the changed property
-      break;
-    case 'DELETE':
-      console.log(`Contact Deleted (ID: ${event.objectId}). Removing from external DB.`);
-      // TODO: Remove this contact from your external database
-      break;
-    // Handle other change types as needed
-    default:
-      console.log(`Unhandled CONTACT changeType: ${event.changeType}`);
+  try {
+    switch (event.changeType) {
+      case 'CREATE':
+        console.log(`New Contact Created (ID: ${event.objectId}). Syncing to external DB.`);
+        const newContactDetails = await searchContactById(event.objectId);
+        if (newContactDetails) {
+          await syncContactToLocalDb(newContactDetails);
+        } else {
+          console.warn(`Could not fetch details for new contact ID: ${event.objectId}`);
+        }
+        break;
+      case 'PROPERTY_CHANGE':
+        console.log(`Contact ${event.objectId} property '${event.propertyName}' changed from '${event.before}' to '${event.newValue}'.`);
+        // Only update local DB for properties you care about and are mapped
+        // You might want to refine this to a specific list of properties
+        if (event.propertyName && event.newValue !== undefined) { // Ensure propertyName and newValue exist
+            await updateLocalContactProperty(event.objectId, event.propertyName, event.newValue);
+        }
+        break;
+      case 'DELETE':
+        console.log(`Contact Deleted (ID: ${event.objectId}). Removing from external DB.`);
+        await removeContactFromLocalDb(event.objectId);
+        break;
+      // Handle other change types as needed
+      default:
+        console.log(`Unhandled CONTACT changeType: ${event.changeType}`);
+    }
+  } catch (error) {
+    console.error(`Error handling contact webhook event for ID ${event.objectId}:`, error);
+    // Re-throw to ensure the main webhook handler catches it and returns a 500
+    throw error;
   }
 }
 
