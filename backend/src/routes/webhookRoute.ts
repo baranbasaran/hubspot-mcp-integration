@@ -1,5 +1,5 @@
 // backend/src/routes/webhookRoute.ts
-import { Router, Request, Response, RequestHandler } from 'express'; // Import RequestHandler
+import { Router, RequestHandler } from 'express'; // Import RequestHandler
 import { handleHubSpotWebhook } from '../controllers/webhookController';
 
 const router: Router = Router();

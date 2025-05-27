@@ -49,9 +49,7 @@ export const handleHubSpotWebhook = async (req: Request, res: Response) => {
     console.log('Received HubSpot webhook payload:', JSON.stringify(payload, null, 2));
 
 
-    // Iterate through each event in the payload
     for (const event of payload) {
-      // Use event.subscriptionType to determine the object type (e.g., "contact.creation" -> "contact")
       const objectType = event.subscriptionType ? event.subscriptionType.split('.')[0].toUpperCase() : undefined;
 
       switch (objectType) { // Use the extracted objectType

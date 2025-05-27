@@ -1,14 +1,10 @@
-import {Router} from 'express';
+import {Router, RequestHandler} from 'express';
 import { createBatchCompanies } from '../controllers/companyController';
 
 
-const router = Router();
+const router: Router = Router();
 
-router.get('/', (req, res) => {
-  res.send('Company route works!');
-});
-
-router.post('/createBatch', createBatchCompanies);
+router.post('/createBatch', createBatchCompanies as RequestHandler);
 
 
 export default router;

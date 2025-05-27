@@ -13,14 +13,13 @@ import { CompanyInput } from "../types/companyTypes";
 export const createBatchCompanies = async (
   req: Request,
   res: Response
-): Promise<void> => {
+) => {
   try {
     const {companies} = req.body;
     if (!Array.isArray(companies) || companies.length === 0) {
-      res
+      return res
         .status(400)
         .json(ApiResponse.error("Invalid input data for batch creation."));
-      return;
     }
 
     const formattedCompanies: CompanyInput[] = companies.map((company: any) => {
@@ -43,7 +42,7 @@ export const createBatchCompanies = async (
     
 
     const response = await batchCreateCompanies(formattedCompanies);
-    res
+    return res
       .status(201)
       .json(ApiResponse.success("Companies created successfully", response));
   } catch (error: any) {
