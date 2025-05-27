@@ -4,6 +4,6 @@ import { handleHubSpotWebhook } from '../controllers/webhookController';
 
 const router: Router = Router();
 
-router.post('/hubspot', handleHubSpotWebhook as RequestHandler);
+router.post('/hubspot', handleHubSpotWebhook );
 
 export default router;

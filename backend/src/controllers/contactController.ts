@@ -15,18 +15,19 @@ import { parseFilterFromQuery } from "../utils/filterParser";
  * @param req - Express Request object
  * @param res - Express Response object
  */
-export const createBatchContacts = async (req: Request, res: Response) => {
+export const createBatchContacts = async (req: Request, res: Response) : Promise<void> => {
   try {
     const { contacts } = req.body;
 
     if (!Array.isArray(contacts) || contacts.length === 0) {
-      return res
+      res
         .status(400)
         .json(
           ApiResponse.error(
             "Invalid input: contacts must be a non-empty array."
           )
         );
+        return;
     }
 
     const formattedContacts: ContactInput[] = contacts.map((contact: any) => {
@@ -54,14 +55,15 @@ export const createBatchContacts = async (req: Request, res: Response) => {
       "✅ Created contact IDs:",
       results.map((r) => r.id)
     );
-    return res
+    res
       .status(201)
       .json(
         ApiResponse.success("Batch contacts created successfully.", results)
       );
+      return;
   } catch (error: any) {
     console.error("Error creating batch contacts:", error.message);
-    return res
+     res
       .status(500)
       .json(
         ApiResponse.error(
@@ -69,6 +71,7 @@ export const createBatchContacts = async (req: Request, res: Response) => {
           error.message
         )
       );
+      return;
   }
 };
 
@@ -83,19 +86,21 @@ export const searchContact = async (req: Request, res: Response) => {
     const filters = parseFilterFromQuery(req.query);
     if (!filters.length) {
       const response = await listContacts();
-      return res
+       res
         .status(200)
         .json(ApiResponse.success("Contacts retrieved successfully", response));
+        return;
     }
 
     const results = await searchContacts(filters);
 
-    return res
+     res
       .status(200)
       .json(ApiResponse.success("Contacts retrieved successfully", results));
+      return;
   } catch (error: any) {
     console.error("Error searching contacts:", error.message);
-    return res
+     res
       .status(500)
       .json(
         ApiResponse.error(
@@ -103,6 +108,7 @@ export const searchContact = async (req: Request, res: Response) => {
           error.message
         )
       );
+      return;
   }
 };
 
@@ -116,21 +122,23 @@ export const deleteContact = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json(ApiResponse.error("Invalid input: ID is required."));
+       res.status(400).json(ApiResponse.error("Invalid input: ID is required."));
+       return;
     }
 
     const contact = await searchContactById(id);
     if (!contact) {
-      return res.status(404).json(ApiResponse.error("Contact not found."));
+       res.status(404).json(ApiResponse.error("Contact not found."));
+       return;
     }
 
     await deleteContactById(id);
-    return res
+     res
       .status(200)
       .json(ApiResponse.success("Contact deleted successfully."));
   } catch (error: any) {
     console.error("Error deleting contact:", error.message);
-    return res
+     res
       .status(500)
       .json(
         ApiResponse.error(

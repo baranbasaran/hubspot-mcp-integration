@@ -9,19 +9,21 @@ import { verifyWebhookSignature } from '../utils/hubspotWebhookUtils';
 // Replace with your actual client secret from HubSpot Private App (Auth tab)
 const HUBSPOT_WEBHOOK_SECRET = process.env.HUBSPOT_WEBHOOK_SECRET; // Make sure this is set in your .env
 
-export const handleHubSpotWebhook = async (req: Request, res: Response) => {
+export const handleHubSpotWebhook = async (req: Request, res: Response) : Promise<void> => {
   try {
     // IMPORTANT: Verify the webhook signature before processing
     if (!HUBSPOT_WEBHOOK_SECRET) {
         console.warn('🚫 No HubSpot webhook secret configured.');
-        return res.status(500).json(ApiResponse.error('Internal Server Error: Webhook secret not configured.'));
+        res.status(500).json(ApiResponse.error('Internal Server Error: Webhook secret not configured.'));
+        return;
       }
     // For v1 signatures, the signature is in 'x-hubspot-signature'
     const signature = req.headers['x-hubspot-signature'] as string; 
 
     if (!signature) {
       console.warn('🚫 No signature provided in webhook headers (x-hubspot-signature).');
-      return res.status(401).json(ApiResponse.error('Unauthorized: No signature provided.'));
+      res.status(401).json(ApiResponse.error('Unauthorized: No signature provided.'));
+      return;
     }
 
     // req.body is a Buffer when using express.raw(). Convert it to string and parse as JSON.
@@ -32,18 +34,21 @@ export const handleHubSpotWebhook = async (req: Request, res: Response) => {
       payload = JSON.parse(rawBody); // Explicitly parse the raw body into JSON
     } catch (parseError) {
       console.error('❌ Error parsing webhook payload as JSON:', parseError);
-      return res.status(400).json(ApiResponse.error('Invalid JSON payload.'));
+      res.status(400).json(ApiResponse.error('Invalid JSON payload.'));
+      return;
     }
 
     if (!Array.isArray(payload) || payload.length === 0) {
       console.warn('Received empty or invalid webhook payload. Expected an array of events.');
-      return res.status(200).json(ApiResponse.success('No events to process.'));
+       res.status(200).json(ApiResponse.success('No events to process.'));
+       return;
     }
 
     // Verify the webhook signature using the simplified v1 logic
     if (!verifyWebhookSignature(signature, rawBody, HUBSPOT_WEBHOOK_SECRET, req.headers)) { // Pass req.headers for logging
       console.warn('🚫 Webhook signature verification failed. Request denied.');
-      return res.status(401).json(ApiResponse.error('Unauthorized: Invalid webhook signature.'));
+       res.status(401).json(ApiResponse.error('Unauthorized: Invalid webhook signature.'));
+       return;
     }
 
     console.log('Received HubSpot webhook payload:', JSON.stringify(payload, null, 2));
