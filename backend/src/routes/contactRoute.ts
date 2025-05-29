@@ -1,12 +1,11 @@
-// src/routes/contactRoute.ts
-import { Router, RequestHandler } from 'express'; // Import RequestHandler
+import { Router } from 'express';
 import { createBatchContacts, deleteContact, searchContact } from '../controllers/contactController';
 
-const router: Router = Router(); // Explicitly type 'router' as Router
+const router: Router = Router();
 
-router.post('/createBatch', createBatchContacts ); // Cast to RequestHandler
-router.get('/search', searchContact ); // Cast to RequestHandler
-router.delete('/delete/:id', deleteContact ); // Cast to RequestHandler
+router.post('/createBatch', createBatchContacts); 
+router.get('/search', searchContact); 
+router.delete('/delete/:id', deleteContact);
 
 
 export default router;

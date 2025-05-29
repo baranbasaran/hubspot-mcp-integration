@@ -54,7 +54,7 @@ export const handleHubSpotWebhook = async (req: Request, res: Response) : Promis
     console.log('Received HubSpot webhook payload:', JSON.stringify(payload, null, 2));
 
 
-    for (const event of payload) {
+    for (const event of   payload) {
       const objectType = event.subscriptionType ? event.subscriptionType.split('.')[0].toUpperCase() : undefined;
 
       switch (objectType) { // Use the extracted objectType
@@ -96,7 +96,7 @@ async function handleContactWebhookEvent(event: any) {
             await updateLocalContactProperty(event.objectId, event.propertyName, event.newValue);
         }
         break;
-      case 'DELETE':
+      case 'DELETED':
         console.log(`Contact Deleted (ID: ${event.objectId}). Removing from external DB.`);
         await removeContactFromLocalDb(event.objectId);
         break;
