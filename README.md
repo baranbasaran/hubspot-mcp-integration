@@ -50,8 +50,8 @@ A robust Node.js application that integrates HubSpot CRM with a local database, 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/hubspot-mcp-integration.git
-   cd hubspot-mcp-integration
+   git clone https://github.com/yourusername/hubspot-sync
+   cd hubspot-sync
    ```
 
 2. Install dependencies:
@@ -132,7 +132,7 @@ A robust Node.js application that integrates HubSpot CRM with a local database, 
 ## Project Structure
 
 ```
-hubspot-mcp-integration/
+hubspot-sync/
 ├── backend/
 │   ├── src/
 │   │   ├── controllers/     # Request handlers
