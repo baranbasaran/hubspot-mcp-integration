@@ -3,8 +3,8 @@ import {
   batchCreateContacts,
   searchContactById,
   deleteContactById,
-  searchContacts,
-  listContacts,
+  searchContacts as searchContactsService,
+  listContacts as listContactsService,
 } from "../services/contactService";
 import { ContactInput } from "../types/contactTypes";
 import { ApiResponse } from "../utils/ApiResponse";
@@ -68,8 +68,8 @@ export const searchContact = async (
   try {
     const filters = parseFilterFromQuery(req.query);
     const results = filters.length === 0
-      ? await listContacts()
-      : await searchContacts(filters);
+      ? await listContactsService()
+      : await searchContactsService(filters);
     
     res.status(200).json(ApiResponse.success("Contacts retrieved successfully", results));
   } catch (error) {
@@ -98,6 +98,25 @@ export const deleteContact = async (
 
     await deleteContactById(id);
     res.status(200).json(ApiResponse.success("Contact deleted successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Lists all contacts
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next function for error handling
+ */
+export const listContacts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const contacts = await listContactsService();
+    res.status(200).json(ApiResponse.success("Contacts retrieved successfully", contacts));
   } catch (error) {
     next(error);
   }

@@ -1,11 +1,18 @@
 import { Router } from 'express';
-import { createBatchContacts, deleteContact, searchContact } from '../controllers/contactController';
+import { createBatchContacts, deleteContact, searchContact, listContacts } from '../controllers/contactController';
 
 const router: Router = Router();
 
-router.post('/createBatch', createBatchContacts); 
-router.get('/search', searchContact); 
-router.delete('/:id', deleteContact);
+// Create multiple contacts in batch
+router.post('/batch', createBatchContacts);
 
+// List all contacts
+router.get('/', listContacts);
+
+// Search contacts with filters
+router.get('/search', searchContact);
+
+// Delete a contact by ID
+router.delete('/:id', deleteContact);
 
 export default router;

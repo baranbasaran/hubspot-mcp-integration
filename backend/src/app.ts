@@ -30,8 +30,8 @@ export class App {
 
     this.app.use(express.json()); 
 
-    this.app.use('/contact', contactRoute);
-    this.app.use('/company', companyRoute);
+    this.app.use('/api/contacts', contactRoute);
+    this.app.use('/api/companies', companyRoute);
   }
 
   private setupErrorHandling(): void {

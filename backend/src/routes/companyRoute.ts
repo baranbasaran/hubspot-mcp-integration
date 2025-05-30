@@ -9,9 +9,9 @@ import {
 const router: Router = Router();
 
 // Create multiple companies in batch
-router.post('/createBatch', createBatchCompanies);
+router.post('/batch', createBatchCompanies);
 
-// Get all companies
+// List all companies
 router.get('/', getCompanies);
 
 // Search companies with filters
