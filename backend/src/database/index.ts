@@ -16,17 +16,11 @@ if (!MONGODB_URI) {
 // Connection function
 export const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) {
-    // Already connected
     return;
   }
 
   try {
-    await mongoose.connect(MONGODB_URI, {
-      // useNewUrlParser: true, // Deprecated in Mongoose 6+
-      // useUnifiedTopology: true, // Deprecated in Mongoose 6+
-      // useCreateIndex: true, // Deprecated in Mongoose 6+
-      // useFindAndModify: false, // Deprecated in Mongoose 6+
-    });
+    await mongoose.connect(MONGODB_URI);
     console.log('✅ MongoDB connected successfully.');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
@@ -34,6 +28,5 @@ export const connectDB = async () => {
   }
 };
 
-// Import and re-export your models for easy access
 export { default as ContactModel } from './models/Contact';
 export { default as CompanyModel } from './models/Company';

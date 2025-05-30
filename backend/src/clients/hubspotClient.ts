@@ -6,7 +6,6 @@ dotenv.config();
 
 class HubSpotClientWrapper {
   private static accessTokenClient: HubSpotClient | null = null;
-  private static devApiKeyClient: HubSpotClient | null = null;
 
   public static getClient(authType: HubSpotAuthType): HubSpotClient {
     if (!process.env.HUBSPOT_ACCESS_TOKEN) {

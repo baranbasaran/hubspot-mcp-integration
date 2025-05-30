@@ -5,12 +5,6 @@ node_modules/
 *.log
 dist/
 coverage/
-
-# Frontend
-frontend/build/
-frontend/.next/
-frontend/node_modules/
-
 # Backend
 backend/dist/
 backend/node_modules/

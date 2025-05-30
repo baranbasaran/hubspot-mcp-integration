@@ -1,6 +1,7 @@
 import { HubSpotWebhookEvent, IHubSpotPropertyChangeEvent } from '../types/hubspotWebhookTypes';
 import { searchContactById, syncContactToLocalDb, updateLocalContactProperty, removeContactFromLocalDb } from './contactService';
-import { searchCompanies } from './companyService';
+import { searchCompanies, syncCompanyToLocalDb, updateLocalCompanyProperty, removeCompanyFromLocalDb } from './companyService';
+import { FilterOperatorEnum } from '@hubspot/api-client/lib/codegen/crm/companies';
 
 export class WebhookService {
   /**
@@ -81,27 +82,45 @@ export class WebhookService {
    */
   private async handleCompanyWebhookEvent(event: HubSpotWebhookEvent): Promise<void> {
     console.log(`Processing COMPANY event: ${event.subscriptionType} on ID ${event.objectId}`);
-    switch (event.subscriptionType) {
-      case 'company.creation':
-        console.log(`Company ${event.objectId} created. Triggering enrichment.`);
-        // TODO: Call a third-party data enrichment API (e.g., Clearbit, Hunter.io)
-        break;
+    try {
+      switch (event.subscriptionType) {
+        case 'company.creation':
+          console.log(`Company ${event.objectId} created. Syncing to external DB.`);
+          const newCompanyDetails = await searchCompanies([{ 
+            propertyName: 'hs_object_id', 
+            operator: FilterOperatorEnum.Eq, 
+            value: event.objectId.toString() 
+          }]);
+          if (newCompanyDetails && newCompanyDetails.length > 0) {
+            await syncCompanyToLocalDb(newCompanyDetails[0]);
+          } else {
+            console.warn(`Could not fetch details for new company ID: ${event.objectId}`);
+          }
+          break;
 
-      case 'company.propertyChange':
-        const companyChangeEvent = event as IHubSpotPropertyChangeEvent;
-        if (companyChangeEvent.propertyName === 'domain') {
-          console.log(`Company ${companyChangeEvent.objectId} domain changed. Triggering enrichment.`);
-          // TODO: Call a third-party data enrichment API (e.g., Clearbit, Hunter.io)
-        }
-        break;
+        case 'company.propertyChange':
+          const companyChangeEvent = event as IHubSpotPropertyChangeEvent;
+          console.log(`Company ${companyChangeEvent.objectId} property '${companyChangeEvent.propertyName}' changed to '${companyChangeEvent.propertyValue}'.`);
+          if (companyChangeEvent.propertyName && companyChangeEvent.propertyValue !== undefined) {
+            await updateLocalCompanyProperty(
+              companyChangeEvent.objectId.toString(),
+              companyChangeEvent.propertyName,
+              companyChangeEvent.propertyValue
+            );
+          }
+          break;
 
-      case 'company.deletion':
-        console.log(`Company Deleted (ID: ${event.objectId}). Removing from external DB.`);
-        // TODO: Implement company deletion from local DB
-        break;
+        case 'company.deletion':
+          console.log(`Company Deleted (ID: ${event.objectId}). Removing from external DB.`);
+          await removeCompanyFromLocalDb(event.objectId.toString());
+          break;
 
-      default:
-        console.log(`Unhandled COMPANY subscriptionType: ${event.subscriptionType}`);
+        default:
+          console.log(`Unhandled COMPANY subscriptionType: ${event.subscriptionType}`);
+      }
+    } catch (error) {
+      console.error(`Error handling company webhook event for ID ${event.objectId}:`, error);
+      throw error;
     }
   }
 }

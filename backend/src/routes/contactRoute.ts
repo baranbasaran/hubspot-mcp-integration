@@ -5,7 +5,7 @@ const router: Router = Router();
 
 router.post('/createBatch', createBatchContacts); 
 router.get('/search', searchContact); 
-router.delete('/delete/:id', deleteContact);
+router.delete('/:id', deleteContact);
 
 
 export default router;

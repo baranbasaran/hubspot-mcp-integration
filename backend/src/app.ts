@@ -1,5 +1,5 @@
 // src/app.ts
-import express, { Application, Request, Response, NextFunction } from 'express'; // Import Request, Response, NextFunction
+import express, { Application} from 'express'; // Import Request, Response, NextFunction
 import cors from 'cors';
 import { config } from './config/config';
 import { errorHandler } from './middleware/errorHandler';
@@ -28,7 +28,7 @@ export class App {
 
     this.app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRoute);
 
-    this.app.use(express.json()); // This will apply to routes defined after this line
+    this.app.use(express.json()); 
 
     this.app.use('/contact', contactRoute);
     this.app.use('/company', companyRoute);
